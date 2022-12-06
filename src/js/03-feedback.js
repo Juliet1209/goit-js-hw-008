@@ -1,23 +1,31 @@
 
-import Player from '@vimeo/player';
-import throttle from 'lodash.throttle';
+import Throttle from "lodash.throttle";
 
-const STORAGE_KEY = 'videoplayer-current-time';
-const iframe = document.querySelector('iframe');
-const player = new Player(iframe);
+(() => {
+	const form = document.querySelector(".feedback-form");
+	const email = document.querySelector("input");
+	const message = document.querySelector("textarea");
 
-const onPlay = function (data) {
-  localStorage.setItem(STORAGE_KEY, data.seconds);
-  console.log(data.seconds);
-};
-player.on('loaded', function () {
-  /*найкраще використовувати встановлення часу в момент коли відео завантажене*/
-  if (localStorage.getItem(STORAGE_KEY)) {
-    // player.setCurrentTime(seconds);
-    player.setCurrentTime(localStorage.getItem(STORAGE_KEY));
-  }
-});
-/*у випадку якщо записувати при події play часто відео запускається з часу в 
-localStorage якщо перемотувати  збереження часу*/
+	let data = {};
 
-player.on('timeupdate', throttle(onPlay, 1000));
+	form.addEventListener("input", Throttle((event) => {
+		data[event.target.name] = event.target.value;
+		data[event.target.name] = event.target.value;
+		if (data) {
+			localStorage.setItem("feedback-form-state", JSON.stringify(data));
+		}
+	}, 500));
+
+	form.addEventListener("submit", (event) => {
+		event.preventDefault();
+		form.reset();
+		localStorage.removeItem("feedback-form-state");
+		data = {};
+	});
+
+	if (localStorage.getItem("feedback-form-state")) {
+		data = JSON.parse(localStorage.getItem("feedback-form-state"));
+	}
+	email.value = data.email || "";
+	message.value = data.message || "";
+})();
