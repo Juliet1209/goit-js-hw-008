@@ -1,5 +1,5 @@
 import Player from "@vimeo/player";
-import Throttle from "lodash.throttle";
+import throttle from "lodash.throttle";
 (() => {
 	const iframe = document.querySelector("iframe");
     const player = new Player(iframe);
@@ -10,7 +10,7 @@ import Throttle from "lodash.throttle";
 			player.setCurrentTime(localStorage.getItem("videoplayer-current-time"));
 		}
 	});
-	player.on("timeupdate", Throttle((data)=>{
+	player.on("timeupdate", throttle((data)=>{
 		localStorage.setItem("videoplayer-current-time", data.seconds);
 	}, 1000));
 })();
