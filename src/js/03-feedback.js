@@ -1,32 +1,34 @@
+import throttle from 'lodash.throttle';
 
-import throttle from "lodash.throttle";
+const refs = {
+ form: document.querySelector(".feedback-form"),
+ email: document.querySelector(".feedback-form input"),
+ textarea: document.querySelector(".feedback-form textarea"),
+ }
+ 
+let formData = {};
+const STORAGE_KEY = "feedback-form-state";
 
-(() => {
-	const form = document.querySelector(".feedback-form");
-	const email = document.querySelector("input");
-	const message = document.querySelector("textarea");
+refs.form.addEventListener("submit", throttle(onFormSubmit, 500));
 
-	let data = {};
+savedFormData();
 
-	form.addEventListener("input", throttle((event) => {
-		data[event.target.name] = event.target.value;
-		data[event.target.name] = event.target.value;
-		if (data) {
-			localStorage.setItem("feedback-form-state", JSON.stringify(data));
-		}
-	}, 500));
+refs.form.addEventListener("input", event => {
+    formData[event.target.name] = event.target.value;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+    console.log(formData);
+});
 
-	form.addEventListener("submit", (event) => {
-		event.preventDefault();
-		console.log(event);
-		form.reset();
-		localStorage.removeItem("feedback-form-state");
-		data = {};
-	});
-
-	if (localStorage.getItem("feedback-form-state")) {
-		data = JSON.parse(localStorage.getItem("feedback-form-state"));
-	}
-	email.value = data.email || "";
-	message.value = data.message || "";
-})();
+function onFormSubmit(event){
+    event.preventDefault();
+    event.currentTarget.reset();
+    localStorage.removeItem(STORAGE_KEY);
+}
+function savedFormData(){
+     const savedFormData = localStorage.getItem(STORAGE_KEY);
+     const parsedFormData = JSON.parse(savedFormData);
+      if (parsedFormData) {
+    formData = parsedFormData;
+    refs.email.value = formData.email || '';
+    refs.textarea.value = formData.message || '';
+    console.log(savedFormData);
